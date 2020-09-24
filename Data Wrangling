@@ -1,0 +1,124 @@
+import pandas as pd
+import matplotlib.pylab as plt
+filename = "https://s3-api.us-geo.objectstorage.softlayer.net/cf-courses-data/CognitiveClass/DA0101EN/auto.csv"
+headers = ["symboling","normalized-losses","make","fuel-type","aspiration", "num-of-doors","body-style",
+         "drive-wheels","engine-location","wheel-base", "length","width","height","curb-weight","engine-type",
+         "num-of-cylinders", "engine-size","fuel-system","bore","stroke","compression-ratio","horsepower",
+         "peak-rpm","city-mpg","highway-mpg","price"]
+df = pd.read_csv(filename, names = headers)
+df.head(5)
+
+import numpy as np
+
+# replace "?" to NaN
+df.replace("?", np.nan, inplace = True)
+df.head(5)
+missing_data = df.isnull()
+missing_data.head(5)
+for column in missing_data.columns.values.tolist():
+    print(column)
+    print (missing_data[column].value_counts())
+    print("")  
+#calculate the average of the columns
+    avg_norm_loss = df["normalized-losses"].astype("float").mean(axis=0)
+print("Average of normalized-losses:", avg_norm_loss)
+#replace "NaN" by mean value of the columns
+df["normalized-losses"].replace(np.nan, avg_norm_loss, inplace=True)
+#calculate the average of the columns
+avg_bore=df['bore'].astype('float').mean(axis=0)
+print("Average of bore:", avg_bore)
+#replace "NaN" by mean value of the columns
+df["bore"].replace(np.nan, avg_bore, inplace=True)
+#calculate thne average of the columns
+avg_horsepower = df['horsepower'].astype('float').mean(axis=0)
+print("Average horsepower:", avg_horsepower)
+#replace "NaN" by mean value of the columns
+df['horsepower'].replace(np.nan, avg_horsepower, inplace=True)
+#calculate thne average of the columns
+avg_peakrpm=df['peak-rpm'].astype('float').mean(axis=0)
+print("Average peak rpm:", avg_peakrpm)
+#replace "NaN" by mean value of the columns
+df['peak-rpm'].replace(np.nan, avg_peakrpm, inplace=True)
+#to see which value is present in the columns we use the "value_counts()" method;
+df['num-of-doors'].value_counts()
+#"idxmax" method to calculate for us the most common type automatically which are changed i.e, four
+df['num-of-doors'].value_counts().idxmax()
+#replace the missing 'num-of-doors' values by the most frequent 
+df["num-of-doors"].replace(np.nan, "four", inplace=True)
+# simply drop whole row with NaN in "price" column
+df.dropna(subset=["price"], axis=0, inplace=True)
+#reset index ,because we dropped two rows.
+df.reset_index (drop=True ,inplace=True)
+df.head(5)
+#data standardization 
+df.head()
+df['city-L/100Km']=235/df["city-mpg"]
+#check your transformed data
+df.head()
+#data normalization
+#repalce(original value)by(original value)/(maximum value)
+
+#binning
+df["horsepower"]=df["horsepower"].astype(int,copy=True)
+#histogram of horsepower
+%matplotlib inline
+import matplotlib as plt
+from matplotlib import pyplot 
+plt.pyplot.hist(df["horsepower"])
+#set x/y and plot title
+plt.pyplot.xlabel("horsepower")
+plt.pyplot.ylabel("count")
+plt.pyplot.title("horsepower bins")
+
+#built a bin array with a max. value to a min. value
+bins=np.linspace(min(df["horsepower"]),max(df["horsepower"]),4)
+#we set group name:
+
+group_names=['Low','Medium','High']
+#we apply the function "cut"
+df['horsepower-binned']=pd.cut(df['horsepower'],bins,labels=group_names,include_lowest=True)
+df[['horsepower','horsepower-binned']].head(20)
+#see the vehicle in each bins
+df["horsepower-binned"].value_counts()
+
+#see the vehicle in each bin
+df["horsepower-binned"].value_counts()
+#plot distributation of each bin 
+
+%matplotlib inline
+import matplotlib as plt
+from matplotlib import pyplot
+plt.pyplot.hist(group_names),df["horsepower-binned"].value_counts()
+
+#set x/y labels and plot title
+plt.pyplot.xlabel("horsepower")
+plt.pyplot.ylabel("count")
+plt.pyplot.title("horsepower bins")
+
+#bins visualization
+%matplotlib inline
+import matplotlib as plt
+from matplotlib import pyplot
+a=(0,1,2)
+
+# draw histogram of attributes"horsepower" with bins=3
+plt.pyplot.hist(df["horsepower"],bins=3)
+#set x/y labels and plot title
+plt.pyplot.xlabel("horsepower")
+plt.pyplot.ylabel("count")
+plt.pyplot.title("horsepower bins")
+#dummy variables 
+
+df.columns
+#yet indicator and assign it to data frame
+".dummy variable_1"
+dummy_variable_1=pd.get_dummies (df["fuel-type"])
+dummy_variable_1.head()
+#change column names for clarity
+#dummy_variable_1.rename(columns={"fuel-type"},inplace=True)
+#dummy_variable_1.head(20)
+
+#we now have value 0 to gas & 1 to diesel
+df=pd.concat([df,dummy_variable_1],axis=1)
+df.drop("fuel-type",axis=1,inplace=True)
+df.head(20)
